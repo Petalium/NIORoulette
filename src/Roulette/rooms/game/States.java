@@ -1,0 +1,9 @@
+package Roulette.rooms.game;
+
+public enum States {
+    GAME_IDLING,
+    ROULETTE_COLLECTING_BETS,
+    ROULETTE_COLLECTING_GUESSES,
+    PLAYER_CHATTING,
+    PLAYER_INPUTTING_INT
+}
