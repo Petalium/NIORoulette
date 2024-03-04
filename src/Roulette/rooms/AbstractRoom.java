@@ -14,10 +14,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class AbstractRoom {
-    private List<Player> players;
-    private List<String> prevChat;
-    private String roomKey;
-    private String displayRoomKey;
+    protected List<Player> players;
+    protected List<String> prevChat;
+    protected String roomKey;
+    protected String displayRoomKey;
 
     public AbstractRoom(String roomKey) {
         players = new ArrayList<>();

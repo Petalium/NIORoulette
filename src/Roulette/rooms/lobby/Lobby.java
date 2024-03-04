@@ -16,7 +16,7 @@ public class Lobby extends AbstractRoom {
     }
 
     public void removePlayer(@NotNull Player player) {
-        super.removePlayer(player);
+        players.remove(player);
         super.broadcastToRoom(player.getDisplayName() + " Has left the lobby.");
     }
 }
