@@ -1,0 +1,72 @@
+#config.yml
+IOHandling:
+  buffer_size: 1024
+  maximum_username_length: 16
+  admin_password: 'password'
+  insufficient_permissions: 'You do not have sufficient permissions to execute this command.'
+  lobby_name: 'Lobby'
+
+ServerSocket:
+  port: 12
+  hostname: 'localhost'
+  welcome_message: 'Successfully connected to %h on port %p'
+  print_connected_players: 'true'
+
+GeneralChatting:
+  message_format: '[%s] %p: %m'
+  server_username: 'SERVER'
+  server_prefix: '@'
+  room_key_length: 6
+  send_previous_chat: 'true'
+
+Game:
+  starting_balance: 500
+  maximum: 10
+  minimum: 1
+  multiplier: 2
+  numbers_eliminated: 5
+  normal_symbol: 'O'
+  random_symbol: 'X'
+
+Ranks:
+  admin:
+    prefix: 'Admin'
+    rank_level: 4
+    permissions:
+      - shutdown
+      - reload
+      - rooms
+      - roomsinfo
+      - close
+      - host.permissions
+  host:
+    prefix: 'Host'
+    rank_level: 3
+    permissions:
+      - start
+      - stop
+      - mod.permissions
+  mod:
+    prefix: 'Mod'
+    rank_level: 2
+    permissions:
+      - kick
+      - demote
+      - promote
+      - player.permissions
+  player:
+    prefix: 'Player'
+    rank_level: 1
+    permissions:
+      - chat
+      - create
+      - join
+      - mute.permissions
+  mute:
+    prefix: 'Mute'
+    rank_level: 0
+    permissions:
+      - help
+      - username
+      - lobby
+#end of config.yml
