@@ -31,49 +31,49 @@ public class Player {
             currentRoom.addPlayer(this);
     }
 
-    public String getDisplayName() {
+    public synchronized String getDisplayName() {
         return displayName;
     }
 
-    public void genDisplayName() {
+    public synchronized void genDisplayName() {
         displayName = rank.prefixColor.ansiCode + username + Colors.RESET.ansiCode;
     }
 
-    public String getUsername() {
+    public synchronized String getUsername() {
         return username;
     }
 
-    public void setUsername(String username) {
+    public synchronized void setUsername(String username) {
         this.username = username;
         this.genDisplayName();
     }
 
-    public PlayerRanks getRank() {
+    public synchronized PlayerRanks getRank() {
         return rank;
     }
 
-    public void setRank(PlayerRanks rank) {
+    public synchronized void setRank(PlayerRanks rank) {
         this.rank = rank;
         this.genDisplayName();
     }
 
-    public SocketChannel getClientChannel() {
+    public synchronized SocketChannel getClientChannel() {
         return clientChannel;
     }
 
-    public AbstractRoom getCurrentRoom() {
+    public synchronized AbstractRoom getCurrentRoom() {
         return currentRoom;
     }
 
-    public States getState() {
+    public synchronized States getState() {
         return state;
     }
 
-    public void setState(States state) {
+    public synchronized void setState(States state) {
         this.state = state;
     }
 
-    public void setCurrentRoom(AbstractRoom newRoom) {
+    public synchronized void setCurrentRoom(AbstractRoom newRoom) {
         currentRoom = newRoom;
     }
 

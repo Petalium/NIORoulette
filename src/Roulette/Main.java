@@ -6,9 +6,6 @@ import Roulette.server.NIOServer;
 
 public class Main {
     public static void main(String[] args) {
-
-
-
         Managers.initialize();
         NIOServer server = new NIOServer(
                 ServerSocketProperties.PORT,
