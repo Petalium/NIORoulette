@@ -173,15 +173,15 @@ public class ConfigManager {
 
         for (Map.Entry<String, Object> entry : map.entrySet()) {
             switch (entry.getValue()) {
-                case Map<?, ?> ignored -> stringBuilder.append(" ".repeat(level * 2)).append(entry.getKey())
-                        .append(":\n").append(mapToString((Map<String, Object>) entry.getValue(), level + 1))
+                case Map<?, ?> nestedMap -> stringBuilder.append(" ".repeat(level * 2)).append(entry.getKey())
+                        .append(":\n").append(mapToString((Map<String, Object>) nestedMap, level + 1))
                         .append("\n");
 
                 case List<?> list -> stringBuilder.append(" ".repeat(level * 2)).append(entry.getKey())
                         .append(":\n").append(listToString((list), level * 3));
 
-                case Integer ignored -> stringBuilder.append(" ".repeat(level * 2)).append(entry.getKey())
-                        .append(": ").append(entry.getValue()).append("\n");
+                case Integer integer -> stringBuilder.append(" ".repeat(level * 2)).append(entry.getKey())
+                        .append(": ").append(integer).append("\n");
 
                 default -> stringBuilder.append(" ".repeat(level * 2)).append(entry.getKey()).append(": ")
                         .append("'").append(entry.getValue()).append("'").append("\n");
