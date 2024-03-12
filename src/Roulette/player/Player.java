@@ -31,7 +31,7 @@ public class Player {
             currentRoom.addPlayer(this);
     }
 
-    public synchronized String getDisplayName() {
+    public String getDisplayName() {
         return displayName;
     }
 
@@ -39,7 +39,7 @@ public class Player {
         displayName = rank.prefixColor.ansiCode + username + Colors.RESET.ansiCode;
     }
 
-    public synchronized String getUsername() {
+    public String getUsername() {
         return username;
     }
 
@@ -48,7 +48,7 @@ public class Player {
         this.genDisplayName();
     }
 
-    public synchronized PlayerRanks getRank() {
+    public PlayerRanks getRank() {
         return rank;
     }
 
@@ -57,15 +57,15 @@ public class Player {
         this.genDisplayName();
     }
 
-    public synchronized SocketChannel getClientChannel() {
+    public SocketChannel getClientChannel() {
         return clientChannel;
     }
 
-    public synchronized AbstractRoom getCurrentRoom() {
+    public AbstractRoom getCurrentRoom() {
         return currentRoom;
     }
 
-    public synchronized States getState() {
+    public States getState() {
         return state;
     }
 
