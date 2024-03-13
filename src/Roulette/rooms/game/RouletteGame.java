@@ -14,15 +14,11 @@ public class RouletteGame {
     private final String randomNumberSymbol;
     private final String formattedSubtract;
     private final String formattedAdd;
-    private final int numberEliminated;
-    private final int multiplier;   // TODO: Create play again options
     private final Map<Player, Integer> playerBalMap;
     private final Map<Player, Integer> playerBetMap;
     private final GameRoom gameRoom;
     private final List<Integer> numbersGuessed;
     private final List<Object> numberList;
-    private final int min;
-    private final int max;
     private int rnd;
     private List<Player> playersPlaying;
     private States state;
@@ -32,15 +28,11 @@ public class RouletteGame {
         randomNumberSymbol = Colors.RED.ansiCode + GameProperties.RANDOM_SYMBOL + Colors.RESET.ansiCode;
         formattedSubtract = Colors.RED.ansiCode + "-" + Colors.RESET.ansiCode;
         formattedAdd = Colors.GREEN.ansiCode + "+" + Colors.RESET.ansiCode;
-        numberEliminated = GameProperties.NUMBERS_ELIMINATED;
-        multiplier = GameProperties.MULTIPLIER;
         playerBalMap = new LinkedHashMap<>();
         playerBetMap = new LinkedHashMap<>();
         this.gameRoom = gameRoom;
         numbersGuessed = new ArrayList<>();
         numberList = new ArrayList<>();
-        min = GameProperties.MINIMUM;
-        max = GameProperties.MAXIMUM;
         playersPlaying = new ArrayList<>();
         state = States.GAME_IDLING;
     }
@@ -69,8 +61,9 @@ public class RouletteGame {
                 putPlayerBet(player, input);
             }
         } else if (state.equals(States.ROULETTE_COLLECTING_GUESSES)) {
-            if (input > max || input < min)
-                player.serverWriteToPlayer("Your guess must be in the range: " + min + "-" + max);
+            if (input > GameProperties.MAXIMUM || input < GameProperties.MINIMUM)
+                player.serverWriteToPlayer("Your guess must be in the range: " +
+                        GameProperties.MINIMUM + "-" + GameProperties.MAXIMUM);
             else if (numbersGuessed.contains(input))
                 player.serverWriteToPlayer("Number " + input + " has already been guessed.");
             else {
@@ -127,8 +120,8 @@ public class RouletteGame {
         this.state = States.ROULETTE_COLLECTING_GUESSES;
         Iterator<Player> playerIterator = playersPlaying.iterator();
 
-        for (int i = 0; i < numberEliminated; i++) {
-            gameRoom.broadcastToRoom(numberListToString() + " | Remaining guesses: " + (numberEliminated - i));
+        for (int i = 0; i < GameProperties.NUMBERS_ELIMINATED; i++) {
+            gameRoom.broadcastToRoom(numberListToString() + " | Remaining guesses: " + (GameProperties.NUMBERS_ELIMINATED - i));
 
             if (playersPlaying.isEmpty())
                 return;
@@ -166,12 +159,12 @@ public class RouletteGame {
 
             currentPlayer.setState(States.PLAYER_CHATTING);
 
-            if (i == (numberEliminated - 1)) {
+            if (i == (GameProperties.NUMBERS_ELIMINATED - 1)) {
                 numberList.set(rnd - 1, randomNumberSymbol);
                 gameRoom.broadcastToRoom(numberListToString());
 
                 for (Player player : playersPlaying) {
-                    int wonAmount = playerBetMap.get(player) * multiplier;
+                    int wonAmount = playerBetMap.get(player) * GameProperties.MULTIPLIER;
                     playerBalMap.replace(player, playerBalMap.get(player) + wonAmount);
                     player.serverWriteToPlayer(formattedAdd + formatCredits(wonAmount) + " | " +
                             "New Balance: " + formatCredits(playerBalMap.get(player)));
@@ -203,9 +196,9 @@ public class RouletteGame {
     }
 
     private void genNumberList() {
-        rnd = RoomUtils.genRandomNumber(min, max);
+        rnd = RoomUtils.genRandomNumber(GameProperties.MINIMUM, GameProperties.MAXIMUM);
 
-        for (int i = min; i <= max; i++)
+        for (int i = GameProperties.MINIMUM; i <= GameProperties.MAXIMUM; i++)
             numberList.add(i);
     }
 

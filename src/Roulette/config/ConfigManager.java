@@ -36,7 +36,7 @@ public class ConfigManager {
                 writeToConfig();
             } else {
                 fileChannel = AsynchronousFileChannel.open(this.path, StandardOpenOption.WRITE, StandardOpenOption.READ);
-                loadFromConfig();
+                loadFromConfig();   // TODO: Load from resources
             }
         } catch (IOException e) {
             throw PrintUtils.throwRunTimeException("Fatal error encountered trying to create " + path, e);
