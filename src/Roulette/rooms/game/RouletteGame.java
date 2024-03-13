@@ -86,96 +86,100 @@ public class RouletteGame {
 
     private void collectBets() {
         try {
-            Thread.startVirtualThread(() -> {
-                this.state = States.ROULETTE_COLLECTING_BETS;
-                int startingBalance = GameProperties.STARTING_BALANCE;
-
-                for (Player player : playersPlaying) {
-                    if (!playerBalMap.containsKey(player))
-                        playerBalMap.put(player, startingBalance);
-
-                    player.setState(States.PLAYER_INPUTTING_INT);
-                    player.serverWriteToPlayer("Current balance: " + formatCredits(playerBalMap.get(player)) +
-                            ", place your bet:");
-                }
-
-                while (true) {  // TODO: Notify, dont poll
-                    if (playerBetMap.size() >= playersPlaying.size() || gameRoom.getPlayers().isEmpty())
-                        break;
-                    else
-                        Thread.onSpinWait();
-                }
-
-                gameRoom.broadcastToRoom("All bets have been collected; Beginning game.");
-            }).join();
+            Thread.startVirtualThread(this::collectBetsInner).join();
         } catch (InterruptedException e) {
             System.out.printf("Error collecting bets. | %s | ", e);
         }
     }
 
+    private void collectBetsInner() {
+        this.state = States.ROULETTE_COLLECTING_BETS;
+        int startingBalance = GameProperties.STARTING_BALANCE;
+
+        for (Player player : playersPlaying) {
+            if (!playerBalMap.containsKey(player))
+                playerBalMap.put(player, startingBalance);
+
+            player.setState(States.PLAYER_INPUTTING_INT);
+            player.serverWriteToPlayer("Current balance: " + formatCredits(playerBalMap.get(player)) +
+                    ", place your bet:");
+        }
+
+        while (true) {  // TODO: Notify, dont poll
+            if (playerBetMap.size() >= playersPlaying.size() || gameRoom.getPlayers().isEmpty())
+                break;
+            else
+                Thread.onSpinWait();
+        }
+
+        gameRoom.broadcastToRoom("All bets have been collected; Beginning game.");
+    }
+
     private void collectGuesses() {
         try {
-            Thread.startVirtualThread(() -> {
-                this.state = States.ROULETTE_COLLECTING_GUESSES;
-                Iterator<Player> playerIterator = playersPlaying.iterator();
-
-                for (int i = 0; i < numberEliminated; i++) {
-                    gameRoom.broadcastToRoom(numberListToString() + " | Remaining guesses: " + (numberEliminated - i));
-
-                    if (playersPlaying.isEmpty())
-                        return;
-                    else if (!playerIterator.hasNext())
-                        playerIterator = playersPlaying.iterator();
-
-                    Player currentPlayer = playerIterator.next();
-                    gameRoom.broadcastToRoom(currentPlayer.getDisplayName() + " Is guessing.");
-
-                    currentPlayer.setState(States.PLAYER_INPUTTING_INT);
-                    currentPlayer.serverWriteToPlayer("Input guess: ");
-
-                    while (true) {
-                        if (numbersGuessed.size() > i)
-                            break;
-                        else if (!playersPlaying.contains(currentPlayer)) {
-                            gameRoom.broadcastToRoom("Player guessing has left; Abruptly stopping the game...");
-                            return;     // TODO: Handle properly, dont just stop the game.
-                        }
-                        else
-                            Thread.onSpinWait();
-                    }
-
-                    int guess = numbersGuessed.getLast();
-
-                    if (guess == rnd) {
-                        numberList.set(guess - 1, randomNumberSymbol);
-                        gameRoom.broadcastToRoom(currentPlayer.getDisplayName() + " Incorrectly guessed " + guess);
-                        gameRoom.broadcastToRoom(numberListToString());
-                        break;
-                    } else {
-                        gameRoom.broadcastToRoom(currentPlayer.getDisplayName() + " Correctly guessed " + guess);
-                        numberList.set(guess - 1, normalNumberSymbol);
-                    }
-
-                    currentPlayer.setState(States.PLAYER_CHATTING);
-
-                    if (i == (numberEliminated - 1)) {
-                        numberList.set(rnd - 1, randomNumberSymbol);
-                        gameRoom.broadcastToRoom(numberListToString());
-
-                        for (Player player : playersPlaying) {
-                            int wonAmount = playerBetMap.get(player) * multiplier;
-                            playerBalMap.replace(player, playerBalMap.get(player) + wonAmount);
-                            player.serverWriteToPlayer(formattedAdd + formatCredits(wonAmount) + " | " +
-                                    "New Balance: " + formatCredits(playerBalMap.get(player)));
-                        }
-                    }
-                }
-
-                gameRoom.broadcastToRoom("Game over.");
-            }).join();
+            Thread.startVirtualThread(this::collectGuessesInner).join();
         } catch (InterruptedException e) {
             System.out.printf("Error collecting guesses. | %s | ", e);
         }
+    }
+
+    private void collectGuessesInner() {
+        this.state = States.ROULETTE_COLLECTING_GUESSES;
+        Iterator<Player> playerIterator = playersPlaying.iterator();
+
+        for (int i = 0; i < numberEliminated; i++) {
+            gameRoom.broadcastToRoom(numberListToString() + " | Remaining guesses: " + (numberEliminated - i));
+
+            if (playersPlaying.isEmpty())
+                return;
+            else if (!playerIterator.hasNext())
+                playerIterator = playersPlaying.iterator();
+
+            Player currentPlayer = playerIterator.next();
+            gameRoom.broadcastToRoom(currentPlayer.getDisplayName() + " Is guessing.");
+
+            currentPlayer.setState(States.PLAYER_INPUTTING_INT);
+            currentPlayer.serverWriteToPlayer("Input guess: ");
+
+            while (true) {
+                if (numbersGuessed.size() > i)
+                    break;
+                else if (!playersPlaying.contains(currentPlayer)) {
+                    gameRoom.broadcastToRoom("Player guessing has left; Abruptly stopping the game...");
+                    return;     // TODO: Handle properly, dont just stop the game.
+                }
+                else
+                    Thread.onSpinWait();
+            }
+
+            int guess = numbersGuessed.getLast();
+
+            if (guess == rnd) {
+                numberList.set(guess - 1, randomNumberSymbol);
+                gameRoom.broadcastToRoom(currentPlayer.getDisplayName() + " Incorrectly guessed " + guess);
+                gameRoom.broadcastToRoom(numberListToString());
+                break;
+            } else {
+                gameRoom.broadcastToRoom(currentPlayer.getDisplayName() + " Correctly guessed " + guess);
+                numberList.set(guess - 1, normalNumberSymbol);
+            }
+
+            currentPlayer.setState(States.PLAYER_CHATTING);
+
+            if (i == (numberEliminated - 1)) {
+                numberList.set(rnd - 1, randomNumberSymbol);
+                gameRoom.broadcastToRoom(numberListToString());
+
+                for (Player player : playersPlaying) {
+                    int wonAmount = playerBetMap.get(player) * multiplier;
+                    playerBalMap.replace(player, playerBalMap.get(player) + wonAmount);
+                    player.serverWriteToPlayer(formattedAdd + formatCredits(wonAmount) + " | " +
+                            "New Balance: " + formatCredits(playerBalMap.get(player)));
+                }
+            }
+        }
+
+        gameRoom.broadcastToRoom("Game over.");
     }
 
     private void cleanUp() {

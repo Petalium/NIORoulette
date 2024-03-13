@@ -41,39 +41,33 @@ public class NIOServer {
     }
 
     public void runServer() {
-        try {
-            Thread.startVirtualThread(() -> {
-                System.out.println("Server started, waiting for clients...");
+        System.out.println("Server started, waiting for clients...");
 
-                Iterator<SelectionKey> keyIterator;
-                SelectionKey key;
+        Iterator<SelectionKey> keyIterator;
+        SelectionKey key;
 
-                while (serverSocketChannel.isOpen()) {
-                    try {
-                        selector.select();
-                        keyIterator = selector.selectedKeys().iterator();
+        while (serverSocketChannel.isOpen()) {
+            try {
+                selector.select();
+                keyIterator = selector.selectedKeys().iterator();
 
-                        while (keyIterator.hasNext()) {
-                            key = keyIterator.next();
-                            keyIterator.remove();
+                while (keyIterator.hasNext()) {
+                    key = keyIterator.next();
+                    keyIterator.remove();
 
-                            if (!key.isValid()) {
-                                closeClient(key);
-                                continue;
-                            }
-
-                            if (key.isAcceptable())
-                                acceptClient(key);
-                            else if (key.isReadable())
-                                readClient(key);
-                        }
-                    } catch (IOException | ClosedSelectorException e) {
-                        throw PrintUtils.throwRunTimeException("Fatal error encountered when selecting from selector.", e);
+                    if (!key.isValid()) {
+                        closeClient(key);
+                        continue;
                     }
+
+                    if (key.isAcceptable())
+                        acceptClient(key);
+                    else if (key.isReadable())
+                        readClient(key);
                 }
-            }).join();
-        } catch (InterruptedException e) {
-            throw PrintUtils.throwRunTimeException("Fatal error encountered when joining thread", e);
+            } catch (IOException | ClosedSelectorException e) {
+                throw PrintUtils.throwRunTimeException("Fatal error encountered when selecting from selector.", e);
+            }
         }
     }
 
